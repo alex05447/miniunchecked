@@ -1,5 +1,3 @@
-use crate::*;
-
 /// An extension trait for [`Result`](std::result::Result) which provides an alternative to [`unwrap_unchecked`](std::result::Result#method.unwrap_unchecked)
 /// which panics in debug configuration.
 pub trait ResultExt<T> {
@@ -13,21 +11,21 @@ impl<T, E> ResultExt<T> for Result<T, E> {
     unsafe fn unwrap_unchecked_dbg(self) -> T {
         match self {
             Ok(val) => val,
-            Err(_) => debug_unreachable_msg(None),
+            Err(_) => unreachable_dbg_msg(None),
         }
     }
     #[inline]
     unsafe fn unwrap_unchecked_dbg_msg(self, msg: &'static str) -> T {
         match self {
             Ok(val) => val,
-            Err(_) => debug_unreachable_msg(Some(msg)),
+            Err(_) => unreachable_dbg_msg(Some(msg)),
         }
     }
     #[inline]
     unsafe fn unwrap_unchecked_dbg_fmt(self, fmt: std::fmt::Arguments<'_>) -> T {
         match self {
             Ok(val) => val,
-            Err(_) => debug_unreachable_fmt(fmt),
+            Err(_) => unreachable_dbg_fmt(fmt),
         }
     }
 }
@@ -35,18 +33,18 @@ impl<T, E> ResultExt<T> for Result<T, E> {
 const ERR_STR: &'static str = "called `Result::unwrap()` on an `Err` value";
 
 #[inline]
-fn debug_unreachable_msg(msg: Option<&'static str>) -> ! {
+fn unreachable_dbg_msg(msg: Option<&'static str>) -> ! {
     // TODO: deduplicate the format string somehow
     if let Some(msg) = msg {
-        debug_unreachable_fmt(format_args!("{}", msg))
+        unreachable_dbg_fmt(format_args!("{}", msg))
     } else {
-        debug_unreachable(format_args!("{}", ERR_STR))
+        crate::unreachable_dbg_fmt(format_args!("{}", ERR_STR))
     }
 }
 
 #[inline]
-fn debug_unreachable_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
-    debug_unreachable(format_args!("{}: {}", ERR_STR, fmt))
+fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
+    crate::unreachable_dbg_fmt(format_args!("{}: {}", ERR_STR, fmt))
 }
 
 #[cfg(test)]

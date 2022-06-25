@@ -1,5 +1,3 @@
-use crate::*;
-
 /// An extension trait for [`Option`](std::option::Option) which provides an alternative to [`unwrap_unchecked`](std::option::Option#method.unwrap_unchecked)
 /// which panics in debug configuration.
 pub trait OptionExt<T> {
@@ -13,21 +11,21 @@ impl<T> OptionExt<T> for Option<T> {
     unsafe fn unwrap_unchecked_dbg(self) -> T {
         match self {
             Some(val) => val,
-            None => debug_unreachable_msg(None),
+            None => unreachable_dbg_msg(None),
         }
     }
     #[inline]
     unsafe fn unwrap_unchecked_dbg_msg(self, msg: &'static str) -> T {
         match self {
             Some(val) => val,
-            None => debug_unreachable_msg(Some(msg)),
+            None => unreachable_dbg_msg(Some(msg)),
         }
     }
     #[inline]
     unsafe fn unwrap_unchecked_dbg_fmt(self, fmt: std::fmt::Arguments<'_>) -> T {
         match self {
             Some(val) => val,
-            None => debug_unreachable_fmt(fmt),
+            None => unreachable_dbg_fmt(fmt),
         }
     }
 }
@@ -35,17 +33,17 @@ impl<T> OptionExt<T> for Option<T> {
 const ERR_STR: &'static str = "called `Option::unwrap()` on a `None` value";
 
 #[inline]
-fn debug_unreachable_msg(msg: Option<&'static str>) -> ! {
+fn unreachable_dbg_msg(msg: Option<&'static str>) -> ! {
     if let Some(msg) = msg {
-        debug_unreachable_fmt(format_args!("{}", msg))
+        unreachable_dbg_fmt(format_args!("{}", msg))
     } else {
-        debug_unreachable(format_args!("{}", ERR_STR))
+        crate::unreachable_dbg_fmt(format_args!("{}", ERR_STR))
     }
 }
 
 #[inline]
-fn debug_unreachable_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
-    debug_unreachable(format_args!("{}: {}", ERR_STR, fmt))
+fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
+    crate::unreachable_dbg_fmt(format_args!("{}: {}", ERR_STR, fmt))
 }
 
 #[cfg(test)]

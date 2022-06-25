@@ -14,11 +14,64 @@ mod slice;
 
 pub use {option::*, result::*, slice::*};
 
+/// An alternative function to the [`std::unreachable`] macro which panics in debug configuration (like [`std::unreachable`] does),
+/// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
+///
+/// Also see [`macro@unreachable_dbg`].
 #[inline]
-pub(crate) fn debug_unreachable(fmt: std::fmt::Arguments<'_>) -> ! {
+pub fn unreachable_dbg() -> ! {
+    if cfg!(debug_assertions) {
+        unreachable!()
+    } else {
+        unsafe { std::hint::unreachable_unchecked() }
+    }
+}
+
+/// An alternative function to the [`std::unreachable`] macro which panics in debug configuration (like [`std::unreachable`] does),
+/// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
+///
+/// Takes a string literal message argument.
+///
+/// Also see [`macro@unreachable_dbg`].
+#[inline]
+pub fn unreachable_dbg_msg(msg: &'static str) -> ! {
+    if cfg!(debug_assertions) {
+        unreachable!("{}", msg)
+    } else {
+        unsafe { std::hint::unreachable_unchecked() }
+    }
+}
+
+/// An alternative function to the [`std::unreachable`] macro which panics in debug configuration (like [`std::unreachable`] does),
+/// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
+///
+/// Accepts format arguments.
+///
+/// Also see [`macro@unreachable_dbg`].
+#[inline]
+pub fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
     if cfg!(debug_assertions) {
         unreachable!("{}", fmt)
     } else {
         unsafe { std::hint::unreachable_unchecked() }
     }
+}
+
+/// An alternative to [`std::unreachable`] which panics in debug configuration (like [`std::unreachable`] does),
+/// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
+///
+/// Accepts no arguments, string literals, or format strings with format argumaents.
+///
+/// Implemented with [`unreachable_dbg`](unreachable_dbg()), [`unreachable_dbg_msg()`] and [`unreachable_dbg_fmt()`].
+#[macro_export]
+macro_rules! unreachable_dbg {
+    () => {
+        miniunchecked::unreachable_dbg()
+    };
+    ($msg:literal) => {
+        miniunchecked::unreachable_dbg_msg($msg)
+    };
+    ($fmt:expr, $($args:tt)*) => {
+        miniunchecked::unreachable_dbg_fmt(format_args!($fmt, $($args)*))
+    };
 }

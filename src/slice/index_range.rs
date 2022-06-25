@@ -13,7 +13,7 @@ unsafe impl<T> SliceIndexExt<[T]> for std::ops::Range<usize> {
         let len = slice.len();
         match slice.get(self) {
             Some(val) => val,
-            None => debug_unreachable_range(_range, len, msg),
+            None => unreachable_dbg_range(_range, len, msg),
         }
     }
 
@@ -27,7 +27,7 @@ unsafe impl<T> SliceIndexExt<[T]> for std::ops::Range<usize> {
         let len = slice.len();
         match slice.get_mut(self) {
             Some(val) => val,
-            None => debug_unreachable_range(_range, len, msg),
+            None => unreachable_dbg_range(_range, len, msg),
         }
     }
 }

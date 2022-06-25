@@ -112,12 +112,12 @@ impl<T> SliceExt<T> for [T] {
 }
 
 #[inline]
-pub(crate) fn debug_unreachable_range(
+pub(crate) fn unreachable_dbg_range(
     range: std::ops::Range<usize>,
     len: usize,
     msg: Option<&'static str>,
 ) -> ! {
-    debug_unreachable(format_args!(
+    unreachable_dbg_fmt(format_args!(
         "range [{}..{}] out of range for slice of length {len}{}{}",
         range.start,
         range.end,
