@@ -117,11 +117,13 @@ pub(crate) fn unreachable_dbg_range(
     len: usize,
     msg: Option<&'static str>,
 ) -> ! {
-    unreachable_dbg_fmt(format_args!(
-        "range [{}..{}] out of range for slice of length {len}{}{}",
-        range.start,
-        range.end,
-        if msg.is_some() { ": " } else { "" },
-        if let Some(msg) = msg { msg } else { "" }
-    ))
+    unsafe {
+        unreachable_dbg_fmt(format_args!(
+            "range [{}..{}] out of range for slice of length {len}{}{}",
+            range.start,
+            range.end,
+            if msg.is_some() { ": " } else { "" },
+            if let Some(msg) = msg { msg } else { "" }
+        ))
+    }
 }

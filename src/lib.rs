@@ -19,11 +19,11 @@ pub use {option::*, result::*, slice::*};
 ///
 /// Also see [`macro@unreachable_dbg`].
 #[inline]
-pub fn unreachable_dbg() -> ! {
+pub unsafe fn unreachable_dbg() -> ! {
     if cfg!(debug_assertions) {
         unreachable!()
     } else {
-        unsafe { std::hint::unreachable_unchecked() }
+        std::hint::unreachable_unchecked()
     }
 }
 
@@ -34,11 +34,11 @@ pub fn unreachable_dbg() -> ! {
 ///
 /// Also see [`macro@unreachable_dbg`].
 #[inline]
-pub fn unreachable_dbg_msg(msg: &'static str) -> ! {
+pub unsafe fn unreachable_dbg_msg(msg: &'static str) -> ! {
     if cfg!(debug_assertions) {
         unreachable!("{}", msg)
     } else {
-        unsafe { std::hint::unreachable_unchecked() }
+        std::hint::unreachable_unchecked()
     }
 }
 
@@ -49,11 +49,11 @@ pub fn unreachable_dbg_msg(msg: &'static str) -> ! {
 ///
 /// Also see [`macro@unreachable_dbg`].
 #[inline]
-pub fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
+pub unsafe fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
     if cfg!(debug_assertions) {
         unreachable!("{}", fmt)
     } else {
-        unsafe { std::hint::unreachable_unchecked() }
+        std::hint::unreachable_unchecked()
     }
 }
 

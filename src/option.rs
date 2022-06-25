@@ -37,13 +37,13 @@ fn unreachable_dbg_msg(msg: Option<&'static str>) -> ! {
     if let Some(msg) = msg {
         unreachable_dbg_fmt(format_args!("{}", msg))
     } else {
-        crate::unreachable_dbg_fmt(format_args!("{}", ERR_STR))
+        unsafe { crate::unreachable_dbg_fmt(format_args!("{}", ERR_STR)) }
     }
 }
 
 #[inline]
 fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
-    crate::unreachable_dbg_fmt(format_args!("{}: {}", ERR_STR, fmt))
+    unsafe { crate::unreachable_dbg_fmt(format_args!("{}: {}", ERR_STR, fmt)) }
 }
 
 #[cfg(test)]

@@ -31,11 +31,13 @@ unsafe impl<T> SliceIndexExt<[T]> for usize {
 }
 
 fn unreachable_dbg_index(index: usize, len: usize, msg: Option<&'static str>) -> ! {
-    unreachable_dbg_fmt(format_args!(
-        "index out of bounds: the len is {len} but the index is {index}{}{}",
-        if msg.is_some() { ": " } else { "" },
-        if let Some(msg) = msg { msg } else { "" }
-    ))
+    unsafe {
+        unreachable_dbg_fmt(format_args!(
+            "index out of bounds: the len is {len} but the index is {index}{}{}",
+            if msg.is_some() { ": " } else { "" },
+            if let Some(msg) = msg { msg } else { "" }
+        ))
+    }
 }
 
 #[cfg(test)]
