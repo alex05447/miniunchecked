@@ -1,6 +1,6 @@
 use crate::*;
 
-unsafe impl<T> SliceIndexExt<[T]> for usize {
+impl<T> SliceIndexExt<[T]> for usize {
     type Output = T;
 
     #[inline]
@@ -47,7 +47,9 @@ mod tests {
     #[test]
     fn get_unchecked_dbg_success() {
         let slice = [2, 3, 4];
+        assert_eq!(*unsafe { slice.get_unchecked_dbg(0) }, 2);
         assert_eq!(*unsafe { slice.get_unchecked_dbg(1) }, 3);
+        assert_eq!(*unsafe { slice.get_unchecked_dbg(2) }, 4);
     }
 
     #[cfg(debug_assertions)]
@@ -56,6 +58,15 @@ mod tests {
     fn get_unchecked_dbg_failure() {
         let slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_dbg(3) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
+    fn get_unchecked_dbg_failure_matches_std() {
+        let vec = [2, 3, 4].into_iter().collect::<Vec<_>>();
+        let slice = vec.as_slice();
+        let _ = &slice[3];
     }
 
     #[cfg(debug_assertions)]
@@ -72,6 +83,15 @@ mod tests {
     fn get_unchecked_mut_dbg_failure() {
         let mut slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_mut_dbg(3) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
+    fn get_unchecked_mut_dbg_failure_matches_std() {
+        let mut vec = [2, 3, 4].into_iter().collect::<Vec<_>>();
+        let slice = vec.as_mut_slice();
+        let _ = &mut slice[3];
     }
 
     #[cfg(debug_assertions)]

@@ -11,6 +11,7 @@
 mod option;
 mod result;
 mod slice;
+mod str;
 
 pub use {option::*, result::*, slice::*};
 
@@ -60,7 +61,7 @@ pub unsafe fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
 /// An alternative to [`std::unreachable`] which panics in debug configuration (like [`std::unreachable`] does),
 /// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
 ///
-/// Accepts no arguments, string literals, or format strings with format argumaents.
+/// Accepts no arguments, string literals, or format strings with format arguments.
 ///
 /// Implemented with [`unreachable_dbg`](unreachable_dbg()), [`unreachable_dbg_msg()`] and [`unreachable_dbg_fmt()`].
 #[macro_export]

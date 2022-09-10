@@ -1,6 +1,6 @@
 use crate::*;
 
-unsafe impl<T> SliceIndexExt<[T]> for std::ops::RangeFrom<usize> {
+impl<T> SliceIndexExt<[T]> for std::ops::RangeFrom<usize> {
     type Output = [T];
 
     #[inline]
@@ -39,12 +39,15 @@ mod tests {
     #[test]
     fn get_unchecked_dbg_success() {
         let slice = [2, 3, 4];
+        assert_eq!(unsafe { slice.get_unchecked_dbg(0..) }, &[2, 3, 4]);
         assert_eq!(unsafe { slice.get_unchecked_dbg(1..) }, &[3, 4]);
+        assert_eq!(unsafe { slice.get_unchecked_dbg(2..) }, &[4]);
+        assert_eq!(unsafe { slice.get_unchecked_dbg(3..) }, &[]);
     }
 
     #[cfg(debug_assertions)]
     #[test]
-    #[should_panic = "range [4..3] out of range for slice of length 3"]
+    #[should_panic = "range start index 4 out of range for slice of length 3"]
     fn get_unchecked_dbg_failure() {
         let slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_dbg(4..) };
@@ -52,7 +55,15 @@ mod tests {
 
     #[cfg(debug_assertions)]
     #[test]
-    #[should_panic = "range [4..3] out of range for slice of length 3: invalid range"]
+    #[should_panic = "range start index 4 out of range for slice of length 3"]
+    fn get_unchecked_dbg_failure_matches_std() {
+        let slice = [2, 3, 4];
+        let _ = &slice[4..];
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "range start index 4 out of range for slice of length 3: invalid range"]
     fn get_unchecked_dbg_msg_failure() {
         let slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_dbg_msg(4.., "invalid range") };
@@ -60,7 +71,7 @@ mod tests {
 
     #[cfg(debug_assertions)]
     #[test]
-    #[should_panic = "range [4..3] out of range for slice of length 3"]
+    #[should_panic = "range start index 4 out of range for slice of length 3"]
     fn get_unchecked_mut_dbg_failure() {
         let mut slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_mut_dbg(4..) };
@@ -68,7 +79,15 @@ mod tests {
 
     #[cfg(debug_assertions)]
     #[test]
-    #[should_panic = "range [4..3] out of range for slice of length 3: invalid range"]
+    #[should_panic = "range start index 4 out of range for slice of length 3"]
+    fn get_unchecked_mut_dbg_failure_matches_std() {
+        let mut slice = [2, 3, 4];
+        let _ = &mut slice[4..];
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "range start index 4 out of range for slice of length 3: invalid range"]
     fn get_unchecked_mut_dbg_msg_failure() {
         let mut slice = [2, 3, 4];
         let _ = unsafe { slice.get_unchecked_mut_dbg_msg(4.., "invalid range") };
