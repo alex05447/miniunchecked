@@ -13,7 +13,7 @@ mod result;
 mod slice;
 mod str;
 
-pub use {option::*, result::*, slice::*};
+pub use {crate::str::StrExt, option::*, result::*, slice::*};
 
 /// An alternative function to the [`std::unreachable`] macro which panics in debug configuration (like [`std::unreachable`] does),
 /// but doesn't in release configuration (like [`std::hint::unreachable_unchecked`]).
