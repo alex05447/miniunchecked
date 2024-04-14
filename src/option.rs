@@ -1,32 +1,42 @@
-/// An extension trait for [`Option`](std::option::Option) which provides an alternative to [`unwrap_unchecked`](std::option::Option#method.unwrap_unchecked)
-/// which panics in debug configuration.
+/// An extension trait for [`Option`] which provides alternatives to [`unwrap_unchecked()`](Option::unwrap_unchecked)
+/// which panic in debug configuration with an optional custom message.
 pub trait OptionExt<T> {
+    /// Alternative to [`unwrap_unchecked()`](Option::unwrap_unchecked) which panics in debug configuration if the [`Option`] is [`None`].
+    ///
+    /// # Safety
+    ///
+    /// See [`unwrap_unchecked()`](Option::unwrap_unchecked) documentation.
     unsafe fn unwrap_unchecked_dbg(self) -> T;
+
+    /// Alternative to [`unwrap_unchecked()`](Option::unwrap_unchecked) which panics in debug configuration if the [`Option`] is [`None`], with a custom error message.
+    ///
+    /// # Safety
+    ///
+    /// See [`unwrap_unchecked()`](Option::unwrap_unchecked) documentation.
     unsafe fn unwrap_unchecked_dbg_msg(self, msg: &'static str) -> T;
+
+    /// Alternative to [`unwrap_unchecked()`](Option::unwrap_unchecked) which panics in debug configuration if the [`Option`] is [`None`], with a custom formatted error message.
+    ///
+    /// # Safety
+    ///
+    /// See [`unwrap_unchecked()`](Option::unwrap_unchecked) documentation.
     unsafe fn unwrap_unchecked_dbg_fmt(self, fmt: std::fmt::Arguments<'_>) -> T;
 }
 
 impl<T> OptionExt<T> for Option<T> {
     #[inline]
     unsafe fn unwrap_unchecked_dbg(self) -> T {
-        match self {
-            Some(val) => val,
-            None => unreachable_dbg_msg(None),
-        }
+        self.unwrap_or_else(|| unreachable_dbg_msg(None))
     }
+
     #[inline]
     unsafe fn unwrap_unchecked_dbg_msg(self, msg: &'static str) -> T {
-        match self {
-            Some(val) => val,
-            None => unreachable_dbg_msg(Some(msg)),
-        }
+        self.unwrap_or_else(|| unreachable_dbg_msg(Some(msg)))
     }
+
     #[inline]
     unsafe fn unwrap_unchecked_dbg_fmt(self, fmt: std::fmt::Arguments<'_>) -> T {
-        match self {
-            Some(val) => val,
-            None => unreachable_dbg_fmt(fmt),
-        }
+        self.unwrap_or_else(|| unreachable_dbg_fmt(fmt))
     }
 }
 

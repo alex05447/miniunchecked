@@ -9,11 +9,9 @@ impl SliceIndexExt<str> for std::ops::RangeFrom<usize> {
         s: &'a str,
         msg: Option<&'static str>,
     ) -> &'a Self::Output {
-        let _range = self.start..s.len();
-        match s.get(self) {
-            Some(val) => val,
-            None => unreachable_dbg_range(s, _range, msg),
-        }
+        let range = self.start..s.len();
+        s.get(self)
+            .unwrap_or_else(|| unreachable_dbg_range(s, range, msg))
     }
 
     #[inline]
@@ -22,12 +20,10 @@ impl SliceIndexExt<str> for std::ops::RangeFrom<usize> {
         s: &'a mut str,
         msg: Option<&'static str>,
     ) -> &'a mut Self::Output {
-        let _range = self.start..s.len();
+        let range = self.start..s.len();
         let _s: *const str = &*s;
-        match s.get_mut(self) {
-            Some(val) => val,
-            None => unreachable_dbg_range(&*_s, _range, msg),
-        }
+        s.get_mut(self)
+            .unwrap_or_else(|| unreachable_dbg_range(&*_s, range, msg))
     }
 }
 
@@ -39,16 +35,17 @@ mod tests {
     fn get_unchecked_dbg_success() {
         let string = "föo";
 
-        let test_range = |range: std::ops::RangeFrom<usize>, expected: &str| {
-            let substring = unsafe { string.get_unchecked_dbg(range.clone()) };
-            assert_eq!(substring, expected);
-            assert_eq!(substring, &string[range]);
+        let do_test = |idx: std::ops::RangeFrom<usize>, res: &str| {
+            assert_eq!(unsafe { string.get_unchecked_dbg(idx.clone()) }, res);
+            assert_eq!(unsafe { string.get_unchecked(idx.clone()) }, res);
+            assert_eq!(string.get(idx.clone()), Some(res));
+            assert_eq!(&string[idx.clone()], res);
         };
 
-        test_range(0.., "föo");
-        test_range(1.., "öo");
-        test_range(3.., "o");
-        test_range(4.., "");
+        do_test(0.., "föo");
+        do_test(1.., "öo");
+        do_test(3.., "o");
+        do_test(4.., "");
     }
 
     #[cfg(debug_assertions)]
@@ -73,6 +70,7 @@ mod tests {
     #[should_panic = "byte index 2 is not a char boundary; it is inside 'ö' (bytes 1..3) of `föo`"]
     fn get_unchecked_dbg_failure_character_boundary() {
         let string = "föo";
+        assert!(string.get(2..).is_none());
         let _ = unsafe { string.get_unchecked_dbg(2..) };
     }
 
@@ -98,14 +96,33 @@ mod tests {
     #[should_panic = "byte index 2 is not a char boundary; it is inside 'ö' (bytes 1..3) of `föo`: invalid range"]
     fn get_unchecked_dbg_msg_failure_character_boundary() {
         let string = "föo";
+        assert!(string.get(2..).is_none());
         let _ = unsafe { string.get_unchecked_dbg_msg(2.., "invalid range") };
+    }
+
+    #[test]
+    fn get_unchecked_mut_dbg_success() {
+        let mut string = "föo".to_string();
+        let string = string.as_mut_str();
+
+        let mut do_test = |idx: std::ops::RangeFrom<usize>, res: &mut str| {
+            assert_eq!(unsafe { string.get_unchecked_mut_dbg(idx.clone()) }, res);
+            assert_eq!(unsafe { string.get_unchecked_mut(idx.clone()) }, res);
+            assert_eq!(string.get_mut(idx.clone()), Some(&mut *res));
+            assert_eq!(&mut string[idx.clone()], res);
+        };
+
+        do_test(0.., "föo".to_string().as_mut_str());
+        do_test(1.., "öo".to_string().as_mut_str());
+        do_test(3.., "o".to_string().as_mut_str());
+        do_test(4.., "".to_string().as_mut_str());
     }
 
     #[cfg(debug_assertions)]
     #[test]
     #[should_panic = "byte index 5 is out of bounds of `föo`"]
     fn get_unchecked_mut_dbg_failure_oob() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
         assert!(string.get_mut(5..).is_none());
         let _ = unsafe { string.get_unchecked_mut_dbg(5..) };
@@ -115,7 +132,7 @@ mod tests {
     #[test]
     #[should_panic = "byte index 5 is out of bounds of `föo`"]
     fn get_unchecked_mut_dbg_failure_oob_start_matches_std() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
         let _ = &mut string[5..];
     }
@@ -124,8 +141,9 @@ mod tests {
     #[test]
     #[should_panic = "byte index 2 is not a char boundary; it is inside 'ö' (bytes 1..3) of `föo`"]
     fn get_unchecked_mut_dbg_failure_character_boundary() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
+        assert!(string.get_mut(2..).is_none());
         let _ = unsafe { string.get_unchecked_mut_dbg(2..) };
     }
 
@@ -133,7 +151,7 @@ mod tests {
     #[test]
     #[should_panic = "byte index 2 is not a char boundary; it is inside 'ö' (bytes 1..3) of `föo`"]
     fn get_unchecked_mut_dbg_failure_character_boundary_matches_std() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
         let _ = &mut string[2..];
     }
@@ -142,7 +160,7 @@ mod tests {
     #[test]
     #[should_panic = "byte index 5 is out of bounds of `föo`: invalid range"]
     fn get_unchecked_mut_dbg_msg_failure_oob() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
         assert!(string.get_mut(5..).is_none());
         let _ = unsafe { string.get_unchecked_mut_dbg_msg(5.., "invalid range") };
@@ -152,8 +170,9 @@ mod tests {
     #[test]
     #[should_panic = "byte index 2 is not a char boundary; it is inside 'ö' (bytes 1..3) of `föo`: invalid range"]
     fn get_unchecked_mut_dbg_msg_failure_character_boundary() {
-        let mut string = String::from("föo");
+        let mut string = "föo".to_string();
         let string = string.as_mut_str();
+        assert!(string.get_mut(2..).is_none());
         let _ = unsafe { string.get_unchecked_mut_dbg_msg(2.., "invalid range") };
     }
 }

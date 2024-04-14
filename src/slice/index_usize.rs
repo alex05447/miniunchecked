@@ -9,11 +9,9 @@ impl<T> SliceIndexExt<[T]> for usize {
         slice: &'a [T],
         msg: Option<&'static str>,
     ) -> &'a Self::Output {
-        let len = slice.len();
-        match slice.get(self) {
-            Some(val) => val,
-            None => unreachable_dbg_index(self, len, msg),
-        }
+        slice
+            .get(self)
+            .unwrap_or_else(|| unreachable_dbg_index(self, slice.len(), msg))
     }
 
     #[inline]
@@ -23,10 +21,9 @@ impl<T> SliceIndexExt<[T]> for usize {
         msg: Option<&'static str>,
     ) -> &'a mut Self::Output {
         let len = slice.len();
-        match slice.get_mut(self) {
-            Some(val) => val,
-            None => unreachable_dbg_index(self, len, msg),
-        }
+        slice
+            .get_mut(self)
+            .unwrap_or_else(|| unreachable_dbg_index(self, len, msg))
     }
 }
 
@@ -47,9 +44,17 @@ mod tests {
     #[test]
     fn get_unchecked_dbg_success() {
         let slice = [2, 3, 4];
-        assert_eq!(*unsafe { slice.get_unchecked_dbg(0) }, 2);
-        assert_eq!(*unsafe { slice.get_unchecked_dbg(1) }, 3);
-        assert_eq!(*unsafe { slice.get_unchecked_dbg(2) }, 4);
+
+        let do_test = |idx: usize, res: &i32| {
+            assert_eq!(unsafe { slice.get_unchecked_dbg(idx) }, res);
+            assert_eq!(unsafe { slice.get_unchecked(idx) }, res);
+            assert_eq!(slice.get(idx), Some(res));
+            assert_eq!(&slice[idx], res);
+        };
+
+        do_test(0, &2);
+        do_test(1, &3);
+        do_test(2, &4);
     }
 
     #[cfg(debug_assertions)]
@@ -57,6 +62,7 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_dbg_failure() {
         let slice = [2, 3, 4];
+        assert!(slice.get(3).is_none());
         let _ = unsafe { slice.get_unchecked_dbg(3) };
     }
 
@@ -64,8 +70,8 @@ mod tests {
     #[test]
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_dbg_failure_matches_std() {
-        let vec = [2, 3, 4].into_iter().collect::<Vec<_>>();
-        let slice = vec.as_slice();
+        let slice = [2, 3, 4];
+        #[allow(unconditional_panic)]
         let _ = &slice[3];
     }
 
@@ -74,7 +80,23 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3: invalid index"]
     fn get_unchecked_dbg_msg_failure() {
         let slice = [2, 3, 4];
+        assert!(slice.get(3).is_none());
         let _ = unsafe { slice.get_unchecked_dbg_msg(3, "invalid index") };
+    }
+
+    #[test]
+    fn get_unchecked_mut_dbg_success() {
+        let mut slice = [2, 3, 4];
+
+        let mut do_test = |idx: usize, res: &mut i32| {
+            assert_eq!(unsafe { slice.get_unchecked_mut_dbg(idx) }, res);
+            assert_eq!(unsafe { slice.get_unchecked_mut(idx) }, res);
+            assert_eq!(slice.get_mut(idx), Some(res));
+        };
+
+        do_test(0, &mut 2);
+        do_test(1, &mut 3);
+        do_test(2, &mut 4);
     }
 
     #[cfg(debug_assertions)]
@@ -82,6 +104,7 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_mut_dbg_failure() {
         let mut slice = [2, 3, 4];
+        assert!(slice.get_mut(3).is_none());
         let _ = unsafe { slice.get_unchecked_mut_dbg(3) };
     }
 
@@ -89,8 +112,8 @@ mod tests {
     #[test]
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_mut_dbg_failure_matches_std() {
-        let mut vec = [2, 3, 4].into_iter().collect::<Vec<_>>();
-        let slice = vec.as_mut_slice();
+        let mut slice = [2, 3, 4];
+        #[allow(unconditional_panic)]
         let _ = &mut slice[3];
     }
 
@@ -99,6 +122,7 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3: invalid index"]
     fn slice_get_unchecked_mut_dbg_msg_failure() {
         let mut slice = [2, 3, 4];
+        assert!(slice.get_mut(3).is_none());
         let _ = unsafe { slice.get_unchecked_mut_dbg_msg(3, "invalid index") };
     }
 }

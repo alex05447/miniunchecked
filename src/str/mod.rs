@@ -4,19 +4,31 @@ mod index_range_inclusive;
 mod index_range_to;
 mod index_range_to_inclusive;
 
-use crate::*;
+use crate::{unreachable_dbg_fmt, unreachable_dbg_msg, SliceIndexExt};
 
 /// An extension trait for [`str`](https://doc.rust-lang.org/std/primitive.str.html)
-/// which provides an alternative to [`get_unchecked`](https://doc.rust-lang.org/std/primitive.str.html#method.get_unchecked)
-/// which panics in debug configuration in case the index is invalid.
+/// which provides alternatives to [`get_unchecked()`](str::get_unchecked) / [`get_unchecked_mut()`](str::get_unchecked_mut)
+/// which panic in debug configuration in case the index is invalid, with an optional custom message.
 ///
 /// Implemented for [`std::ops::Range<usize>`], [`std::ops::RangeInclusive<usize>`],
 /// [`std::ops::RangeFrom<usize>`], [`std::ops::RangeTo<usize>`], [`std::ops::RangeToInclusive<usize>`].
 pub trait StrExt {
+    /// Alternative to [`get_unchecked()`](str::get_unchecked)
+    /// which panics in debug configuration in case the index is invalid.
+    ///
+    /// # Safety
+    ///
+    /// See [`get_unchecked()`](str::get_unchecked) documentation.
     unsafe fn get_unchecked_dbg<I>(&self, index: I) -> &<I as SliceIndexExt<str>>::Output
     where
         I: SliceIndexExt<str>;
 
+    /// Alternative to [`get_unchecked()`](str::get_unchecked)
+    /// which panics in debug configuration in case the index is invalid.
+    ///
+    /// # Safety
+    ///
+    /// See [`get_unchecked_mut()`](str::get_unchecked_mut) documentation.
     unsafe fn get_unchecked_mut_dbg<I>(
         &mut self,
         index: I,
@@ -24,6 +36,12 @@ pub trait StrExt {
     where
         I: SliceIndexExt<str>;
 
+    /// Alternative to [`get_unchecked()`](str::get_unchecked)
+    /// which panics in debug configuration in case the index is invalid, with a custom error message.
+    ///
+    /// # Safety
+    ///
+    /// See [`get_unchecked()`](str::get_unchecked) documentation.
     unsafe fn get_unchecked_dbg_msg<I>(
         &self,
         index: I,
@@ -32,6 +50,12 @@ pub trait StrExt {
     where
         I: SliceIndexExt<str>;
 
+    /// Alternative to [`get_unchecked()`](str::get_unchecked)
+    /// which panics in debug configuration in case the index is invalid, with a custom error message.
+    ///
+    /// # Safety
+    ///
+    /// See [`get_unchecked_mut()`](str::get_unchecked_mut) documentation.
     unsafe fn get_unchecked_mut_dbg_msg<I>(
         &mut self,
         index: I,
