@@ -58,7 +58,11 @@ fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {super::*, crate::unwrap_unchecked_dbg};
+
+    fn returns_a_result(val: i32) -> Result<u8, ()> {
+        u8::try_from(val).map_err(|_| ())
+    }
 
     #[test]
     fn unwrap_unchecked_dbg_success() {
@@ -76,10 +80,26 @@ mod tests {
 
     #[cfg(debug_assertions)]
     #[test]
+    #[should_panic = "called `Result::unwrap()` on an `Err` value"]
+    fn unwrap_unchecked_dbg_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(-7)) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
     #[should_panic = "called `Result::unwrap()` on an `Err` value: missing value"]
     fn unwrap_unchecked_dbg_msg_failure() {
         let x: Result<i32, ()> = Err(());
         let _ = unsafe { x.unwrap_unchecked_dbg_msg("missing value") };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "called `Result::unwrap()` on an `Err` value: missing value"]
+    fn unwrap_unchecked_dbg_msg_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(-7), "missing value") };
     }
 
     #[cfg(debug_assertions)]
@@ -89,5 +109,13 @@ mod tests {
         let x: Result<i32, ()> = Err(());
         let _ =
             unsafe { x.unwrap_unchecked_dbg_fmt(format_args!("missing value (expected {})", 7)) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "called `Result::unwrap()` on an `Err` value: missing value (expected -7)"]
+    fn unwrap_unchecked_dbg_fmt_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_a_result(-7), "missing value (expected {})", -7) };
     }
 }

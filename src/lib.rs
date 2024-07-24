@@ -142,16 +142,25 @@ macro_rules! unreachable_dbg {
 ///
 /// let val = unsafe { unwrap_unchecked_dbg!(x, "something went wrong, expected {}", 7) };
 /// assert_eq!(val, 7);
+///
+/// let val = unsafe { unwrap_unchecked_dbg!(Some(-7)) };
+/// assert_eq!(val, -7);
+///
+/// let val = unsafe { unwrap_unchecked_dbg!(Some(-7), "something went wrong") };
+/// assert_eq!(val, -7);
+///
+/// let val = unsafe { unwrap_unchecked_dbg!(Some(-7), "something went wrong, expected {}", -7) };
+/// assert_eq!(val, -7);
 /// ```
 #[macro_export]
 macro_rules! unwrap_unchecked_dbg {
-    ($option_or_result:ident) => {
+    ($option_or_result:expr) => {
         ($option_or_result).unwrap_unchecked_dbg()
     };
-    ($option_or_result:ident, $msg:literal) => {
+    ($option_or_result:expr, $msg:literal) => {
         ($option_or_result).unwrap_unchecked_dbg_msg($msg)
     };
-    ($option_or_result:ident, $fmt:expr, $($args:tt)*) => {
+    ($option_or_result:expr, $fmt:expr, $($args:tt)*) => {
         ($option_or_result).unwrap_unchecked_dbg_fmt(format_args!($fmt, $($args)*))
     };
 }

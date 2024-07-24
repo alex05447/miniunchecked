@@ -58,7 +58,11 @@ fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {super::*, crate::unwrap_unchecked_dbg};
+
+    fn returns_an_option(val: i32) -> Option<u8> {
+        u8::try_from(val).ok()
+    }
 
     #[test]
     fn unwrap_unchecked_dbg_success() {
@@ -76,10 +80,26 @@ mod tests {
 
     #[cfg(debug_assertions)]
     #[test]
+    #[should_panic = "called `Option::unwrap()` on a `None` value"]
+    fn unwrap_unchecked_dbg_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(-7)) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
     #[should_panic = "called `Option::unwrap()` on a `None` value: missing value"]
     fn unwrap_unchecked_dbg_msg_failure() {
         let x: Option<i32> = None;
         let _ = unsafe { x.unwrap_unchecked_dbg_msg("missing value") };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "called `Option::unwrap()` on a `None` value: missing value"]
+    fn unwrap_unchecked_dbg_msg_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(-7), "missing value") };
     }
 
     #[cfg(debug_assertions)]
@@ -89,5 +109,13 @@ mod tests {
         let x: Option<i32> = None;
         let _ =
             unsafe { x.unwrap_unchecked_dbg_fmt(format_args!("missing value (expected {})", 7)) };
+    }
+
+    #[cfg(debug_assertions)]
+    #[test]
+    #[should_panic = "called `Option::unwrap()` on a `None` value: missing value (expected -7)"]
+    fn unwrap_unchecked_dbg_fmt_macro_failure() {
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(255), "this should succeed") };
+        unsafe { unwrap_unchecked_dbg!(returns_an_option(-7), "missing value (expected {})", -7) };
     }
 }
