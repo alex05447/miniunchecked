@@ -11,7 +11,7 @@ impl SliceIndexExt<str> for std::ops::Range<usize> {
     ) -> &'a Self::Output {
         let range = self.clone();
         s.get(self)
-            .unwrap_or_else(|| unreachable_dbg_range(s, range, msg))
+            .unwrap_or_else(|| unsafe { unreachable_dbg_range(s, range, msg) })
     }
 
     #[inline]
@@ -23,7 +23,7 @@ impl SliceIndexExt<str> for std::ops::Range<usize> {
         let range = self.clone();
         let _s: *const str = &*s;
         s.get_mut(self)
-            .unwrap_or_else(|| unreachable_dbg_range(&*_s, range, msg))
+            .unwrap_or_else(|| unsafe { unreachable_dbg_range(&*_s, range, msg) })
     }
 }
 

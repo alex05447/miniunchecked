@@ -118,7 +118,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked()`
-        &*index.get_unchecked_dbg(self, None)
+        &*unsafe { index.get_unchecked_dbg(self, None) }
     }
 
     #[inline]
@@ -130,7 +130,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked_mut()`
-        &mut *index.get_unchecked_mut_dbg(self, None)
+        &mut *unsafe { index.get_unchecked_mut_dbg(self, None) }
     }
 
     #[inline]
@@ -143,7 +143,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked()`
-        &*index.get_unchecked_dbg(self, Some(msg))
+        &*unsafe { index.get_unchecked_dbg(self, Some(msg)) }
     }
 
     #[inline]
@@ -156,7 +156,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked_mut()`
-        &mut *index.get_unchecked_mut_dbg(self, Some(msg))
+        &mut *unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
     }
 }
 
@@ -167,21 +167,25 @@ pub(super) unsafe fn unreachable_dbg_range(
     msg: Option<&'static str>,
 ) -> ! {
     if range.end > len {
-        unreachable_dbg_fmt(format_args!(
-            "range end index {} out of range for slice of length {len}{}{}",
-            range.end,
-            if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
-        ))
+        unsafe {
+            unreachable_dbg_fmt(format_args!(
+                "range end index {} out of range for slice of length {len}{}{}",
+                range.end,
+                if msg.is_some() { ": " } else { "" },
+                if let Some(msg) = msg { msg } else { "" }
+            ))
+        }
     } else {
         debug_assert!(range.start > len);
 
-        unreachable_dbg_fmt(format_args!(
-            "range start index {} out of range for slice of length {len}{}{}",
-            range.start,
-            if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
-        ))
+        unsafe {
+            unreachable_dbg_fmt(format_args!(
+                "range start index {} out of range for slice of length {len}{}{}",
+                range.start,
+                if msg.is_some() { ": " } else { "" },
+                if let Some(msg) = msg { msg } else { "" }
+            ))
+        }
     }
 }
 

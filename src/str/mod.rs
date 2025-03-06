@@ -4,7 +4,7 @@ mod index_range_inclusive;
 mod index_range_to;
 mod index_range_to_inclusive;
 
-use crate::{unreachable_dbg_fmt, unreachable_dbg_msg, SliceIndexExt};
+use crate::{SliceIndexExt, unreachable_dbg_fmt, unreachable_dbg_msg};
 
 /// An extension trait for [`str`](https://doc.rust-lang.org/std/primitive.str.html)
 /// which provides alternatives to [`get_unchecked()`](str::get_unchecked) / [`get_unchecked_mut()`](str::get_unchecked_mut)
@@ -72,7 +72,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked()`
-        &*index.get_unchecked_dbg(self, None)
+        &*unsafe { index.get_unchecked_dbg(self, None) }
     }
 
     #[inline]
@@ -84,7 +84,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked_mut()`
-        &mut *index.get_unchecked_mut_dbg(self, None)
+        &mut *unsafe { index.get_unchecked_mut_dbg(self, None) }
     }
 
     #[inline]
@@ -97,7 +97,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked()`
-        &*index.get_unchecked_dbg(self, Some(msg))
+        &*unsafe { index.get_unchecked_dbg(self, Some(msg)) }
     }
 
     #[inline]
@@ -110,7 +110,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked_mut()`
-        &mut *index.get_unchecked_mut_dbg(self, Some(msg))
+        &mut *unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
     }
 }
 
@@ -166,11 +166,13 @@ pub(super) unsafe fn unreachable_dbg_range(
     if begin > s.len() || end > s.len() {
         let oob_index = if begin > s.len() { begin } else { end };
         //panic!("byte index {oob_index} is out of bounds of `{s_trunc}`{ellipsis}");
-        unreachable_dbg_fmt(format_args!(
-            "byte index {oob_index} is out of bounds of `{s_trunc}`{ellipsis}{}{}",
-            if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
-        ))
+        unsafe {
+            unreachable_dbg_fmt(format_args!(
+                "byte index {oob_index} is out of bounds of `{s_trunc}`{ellipsis}{}{}",
+                if msg.is_some() { ": " } else { "" },
+                if let Some(msg) = msg { msg } else { "" }
+            ))
+        }
     }
 
     // 2. begin <= end
@@ -183,13 +185,15 @@ pub(super) unsafe fn unreachable_dbg_range(
     //     ellipsis
     // );
     if begin > end {
-        unreachable_dbg_fmt(format_args!(
-            "begin <= end ({} <= {}) when slicing `{s_trunc}`{ellipsis}{}{}",
-            begin,
-            end,
-            if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
-        ))
+        unsafe {
+            unreachable_dbg_fmt(format_args!(
+                "begin <= end ({} <= {}) when slicing `{s_trunc}`{ellipsis}{}{}",
+                begin,
+                end,
+                if msg.is_some() { ": " } else { "" },
+                if let Some(msg) = msg { msg } else { "" }
+            ))
+        }
     }
 
     // 3. character boundary
@@ -207,14 +211,16 @@ pub(super) unsafe fn unreachable_dbg_range(
     //     "byte index {} is not a char boundary; it is inside {:?} (bytes {:?}) of `{}`{}",
     //     index, ch, char_range, s_trunc, ellipsis
     // );
-    unreachable_dbg_fmt(format_args!(
-        "byte index {} is not a char boundary; it is inside {:?} (bytes {:?}) of `{s_trunc}`{ellipsis}{}{}",
-        index,
-        ch,
-        char_range,
-        if msg.is_some() { ": " } else { "" },
-        if let Some(msg) = msg { msg } else { "" }
-    ))
+    unsafe {
+        unreachable_dbg_fmt(format_args!(
+            "byte index {} is not a char boundary; it is inside {:?} (bytes {:?}) of `{s_trunc}`{ellipsis}{}{}",
+            index,
+            ch,
+            char_range,
+            if msg.is_some() { ": " } else { "" },
+            if let Some(msg) = msg { msg } else { "" }
+        ))
+    }
 }
 
 /// Based on `str::traits::str_index_overflow_fail`.

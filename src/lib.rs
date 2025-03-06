@@ -34,7 +34,7 @@ pub unsafe fn unreachable_dbg() -> ! {
     if cfg!(debug_assertions) {
         unreachable!()
     } else {
-        std::hint::unreachable_unchecked()
+        unsafe { std::hint::unreachable_unchecked() }
     }
 }
 
@@ -53,7 +53,7 @@ pub unsafe fn unreachable_dbg_msg(msg: &'static str) -> ! {
     if cfg!(debug_assertions) {
         unreachable!("{}", msg)
     } else {
-        std::hint::unreachable_unchecked()
+        unsafe { std::hint::unreachable_unchecked() }
     }
 }
 
@@ -72,7 +72,7 @@ pub unsafe fn unreachable_dbg_fmt(fmt: std::fmt::Arguments<'_>) -> ! {
     if cfg!(debug_assertions) {
         unreachable!("{}", fmt)
     } else {
-        std::hint::unreachable_unchecked()
+        unsafe { std::hint::unreachable_unchecked() }
     }
 }
 
