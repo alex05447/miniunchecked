@@ -130,7 +130,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked_mut()`
-        &mut *unsafe { index.get_unchecked_mut_dbg(self, None) }
+        unsafe { index.get_unchecked_mut_dbg(self, None) }
     }
 
     #[inline]
@@ -156,7 +156,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked_mut()`
-        &mut *unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
+        unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
     }
 }
 

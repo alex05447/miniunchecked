@@ -84,7 +84,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked_mut()`
-        &mut *unsafe { index.get_unchecked_mut_dbg(self, None) }
+        unsafe { index.get_unchecked_mut_dbg(self, None) }
     }
 
     #[inline]
@@ -110,7 +110,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked_mut()`
-        &mut *unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
+        unsafe { index.get_unchecked_mut_dbg(self, Some(msg)) }
     }
 }
 
