@@ -40,7 +40,7 @@ impl<T, E> ResultExt<T> for Result<T, E> {
     }
 }
 
-const ERR_STR: &'static str = "called `Result::unwrap()` on an `Err` value";
+const ERR_STR: &str = "called `Result::unwrap()` on an `Err` value";
 
 #[inline]
 fn unreachable_dbg_msg(msg: Option<&'static str>) -> ! {

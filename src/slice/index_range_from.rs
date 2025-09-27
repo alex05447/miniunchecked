@@ -64,7 +64,10 @@ mod tests {
     #[should_panic = "range start index 4 out of range for slice of length 3"]
     fn get_unchecked_dbg_failure_matches_std() {
         let slice = [2, 3, 4];
-        let _ = &slice[4..];
+        fn access(slice: &[i32]) {
+            let _ = &slice[4..];
+        }
+        access(slice.as_slice());
     }
 
     #[cfg(debug_assertions)]
@@ -106,7 +109,10 @@ mod tests {
     #[should_panic = "range start index 4 out of range for slice of length 3"]
     fn get_unchecked_mut_dbg_failure_matches_std() {
         let mut slice = [2, 3, 4];
-        let _ = &mut slice[4..];
+        fn access(slice: &mut [i32]) {
+            let _ = &mut slice[4..];
+        }
+        access(slice.as_mut());
     }
 
     #[cfg(debug_assertions)]

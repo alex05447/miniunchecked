@@ -118,7 +118,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked()`
-        &*unsafe { index.get_unchecked_dbg(self, None) }
+        unsafe { index.get_unchecked_dbg(self, None) }
     }
 
     #[inline]
@@ -143,7 +143,7 @@ impl<T> SliceExt<T> for [T] {
         I: SliceIndexExt<[T]>,
     {
         // See `[T]::get_unchecked()`
-        &*unsafe { index.get_unchecked_dbg(self, Some(msg)) }
+        unsafe { index.get_unchecked_dbg(self, Some(msg)) }
     }
 
     #[inline]
@@ -172,7 +172,7 @@ pub(super) unsafe fn unreachable_dbg_range(
                 "range end index {} out of range for slice of length {len}{}{}",
                 range.end,
                 if msg.is_some() { ": " } else { "" },
-                if let Some(msg) = msg { msg } else { "" }
+                msg.unwrap_or("")
             ))
         }
     } else {
@@ -183,7 +183,7 @@ pub(super) unsafe fn unreachable_dbg_range(
                 "range start index {} out of range for slice of length {len}{}{}",
                 range.start,
                 if msg.is_some() { ": " } else { "" },
-                if let Some(msg) = msg { msg } else { "" }
+                msg.unwrap_or("")
             ))
         }
     }

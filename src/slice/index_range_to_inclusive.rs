@@ -62,7 +62,10 @@ mod tests {
     #[should_panic = "attempted to index slice up to maximum usize"]
     fn get_unchecked_dbg_usize_overflow_matches_std() {
         let slice = [2, 3, 4];
-        let _ = &slice[..=usize::MAX];
+        fn access(slice: &[i32]) {
+            let _ = &slice[..=usize::MAX];
+        }
+        access(slice.as_slice());
     }
 
     #[cfg(debug_assertions)]
@@ -79,7 +82,10 @@ mod tests {
     #[should_panic = "range end index 4 out of range for slice of length 3"]
     fn get_unchecked_dbg_failure_matches_std() {
         let slice = [2, 3, 4];
-        let _ = &slice[..=3];
+        fn access(slice: &[i32]) {
+            let _ = &slice[..=3];
+        }
+        access(slice.as_slice());
     }
 
     #[cfg(debug_assertions)]
@@ -119,7 +125,10 @@ mod tests {
     #[should_panic = "attempted to index slice up to maximum usize"]
     fn get_unchecked_mut_dbg_usize_overflow_matches_std() {
         let mut slice = [2, 3, 4];
-        let _ = &mut slice[..=usize::MAX];
+        fn access(slice: &mut [i32]) {
+            let _ = &mut slice[..=usize::MAX];
+        }
+        access(slice.as_mut());
     }
 
     #[cfg(debug_assertions)]
@@ -136,7 +145,10 @@ mod tests {
     #[should_panic = "range end index 4 out of range for slice of length 3"]
     fn get_unchecked_mut_dbg_failure_matches_std() {
         let mut slice = [2, 3, 4];
-        let _ = &mut slice[..=3];
+        fn access(slice: &mut [i32]) {
+            let _ = &mut slice[..=3];
+        }
+        access(slice.as_mut());
     }
 
     #[cfg(debug_assertions)]

@@ -6,10 +6,10 @@
 //!
 //! A middle ground between someting like
 //! - calling [`Option::unwrap()`] / [`Result::unwrap()`] / slice/string square brackets indexing operator, or using [`unreachable!`],
-//! which always panic if [`None`] / [`Err`] / out of bounds / reached, and
+//!   which always panic if [`None`] / [`Err`] / out of bounds / reached, and
 //! - unsafe [`Option::unwrap_unchecked()`] [`Result::unwrap_unchecked()`] / [`[T]::get_unchecked()`](https://doc.rust-lang.org/std/primitive.slice.html#method.get_unchecked),
-//! or using [`unreachable_unchecked()`](std::hint::unreachable_unchecked),
-//! which never panic and lead to UB when [`None`] / [`Err`] / out of bounds,
+//!   or using [`unreachable_unchecked()`](std::hint::unreachable_unchecked),
+//!   which never panic and lead to UB when [`None`] / [`Err`] / out of bounds,
 //!
 //! an operation which does unsafe access in release configuration, for optimal codegen if the invariants are maintained by other means,
 //! but also panics on [`None`] / [`Err`] / out of bounds index in debug configuration / when running tests.

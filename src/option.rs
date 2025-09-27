@@ -40,7 +40,7 @@ impl<T> OptionExt<T> for Option<T> {
     }
 }
 
-const ERR_STR: &'static str = "called `Option::unwrap()` on a `None` value";
+const ERR_STR: &str = "called `Option::unwrap()` on a `None` value";
 
 #[inline]
 fn unreachable_dbg_msg(msg: Option<&'static str>) -> ! {

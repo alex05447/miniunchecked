@@ -72,7 +72,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked()`
-        &*unsafe { index.get_unchecked_dbg(self, None) }
+        unsafe { index.get_unchecked_dbg(self, None) }
     }
 
     #[inline]
@@ -97,7 +97,7 @@ impl StrExt for str {
         I: SliceIndexExt<str>,
     {
         // See `str::get_unchecked()`
-        &*unsafe { index.get_unchecked_dbg(self, Some(msg)) }
+        unsafe { index.get_unchecked_dbg(self, Some(msg)) }
     }
 
     #[inline]
@@ -170,7 +170,7 @@ pub(super) unsafe fn unreachable_dbg_range(
             unreachable_dbg_fmt(format_args!(
                 "byte index {oob_index} is out of bounds of `{s_trunc}`{ellipsis}{}{}",
                 if msg.is_some() { ": " } else { "" },
-                if let Some(msg) = msg { msg } else { "" }
+                msg.unwrap_or("")
             ))
         }
     }
@@ -191,7 +191,7 @@ pub(super) unsafe fn unreachable_dbg_range(
                 begin,
                 end,
                 if msg.is_some() { ": " } else { "" },
-                if let Some(msg) = msg { msg } else { "" }
+                msg.unwrap_or("")
             ))
         }
     }
@@ -218,7 +218,7 @@ pub(super) unsafe fn unreachable_dbg_range(
             ch,
             char_range,
             if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
+            msg.unwrap_or("")
         ))
     }
 }

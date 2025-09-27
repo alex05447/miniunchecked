@@ -45,9 +45,11 @@ mod tests {
         do_test(0..=0, "f");
         do_test(0..=2, "fö");
         do_test(0..=3, "föo");
+        #[allow(clippy::reversed_empty_ranges)]
         do_test(1..=0, "");
         do_test(1..=2, "ö");
         do_test(1..=3, "öo");
+        #[allow(clippy::reversed_empty_ranges)]
         do_test(3..=2, "");
         do_test(3..=3, "o");
     }
@@ -107,7 +109,10 @@ mod tests {
     #[should_panic = "begin <= end (2 <= 1) when slicing `föo`"]
     fn get_unchecked_dbg_failure_begin_greater_than_end() {
         let string = "föo";
-        assert!(string.get(2..=0).is_none());
+        #[allow(clippy::reversed_empty_ranges)]
+        let none = string.get(2..=0);
+        assert!(none.is_none());
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = unsafe { string.get_unchecked_dbg(2..=0) };
     }
 
@@ -116,6 +121,7 @@ mod tests {
     #[should_panic = "begin <= end (2 <= 1) when slicing `föo`"]
     fn get_unchecked_dbg_failure_begin_greater_than_end_matches_std() {
         let string = "föo";
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = &string[2..=0];
     }
 
@@ -159,7 +165,10 @@ mod tests {
     #[should_panic = "begin <= end (2 <= 1) when slicing `föo`: invalid range"]
     fn get_unchecked_dbg_msg_failure_begin_greater_than_end() {
         let string = "föo";
-        assert!(string.get(2..=0).is_none());
+        #[allow(clippy::reversed_empty_ranges)]
+        let none = string.get(2..=0);
+        assert!(none.is_none());
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = unsafe { string.get_unchecked_dbg_msg(2..=0, "invalid range") };
     }
 
@@ -187,9 +196,11 @@ mod tests {
         do_test(0..=0, "f".to_string().as_mut_str());
         do_test(0..=2, "fö".to_string().as_mut_str());
         do_test(0..=3, "föo".to_string().as_mut_str());
+        #[allow(clippy::reversed_empty_ranges)]
         do_test(1..=0, "".to_string().as_mut_str());
         do_test(1..=2, "ö".to_string().as_mut_str());
         do_test(1..=3, "öo".to_string().as_mut_str());
+        #[allow(clippy::reversed_empty_ranges)]
         do_test(3..=2, "".to_string().as_mut_str());
         do_test(3..=3, "o".to_string().as_mut_str());
     }
@@ -238,7 +249,10 @@ mod tests {
     fn get_unchecked_mut_dbg_failure_begin_greater_than_end() {
         let mut string = "föo".to_string();
         let string = string.as_mut_str();
-        assert!(string.get_mut(2..=0).is_none());
+        #[allow(clippy::reversed_empty_ranges)]
+        let none = string.get_mut(2..=0);
+        assert!(none.is_none());
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = unsafe { string.get_unchecked_mut_dbg(2..=0) };
     }
 
@@ -248,6 +262,7 @@ mod tests {
     fn get_unchecked_mut_dbg_failure_begin_greater_than_end_matches_std() {
         let mut string = "föo".to_string();
         let string = string.as_mut_str();
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = &mut string[2..=0];
     }
 
@@ -296,7 +311,10 @@ mod tests {
     fn get_unchecked_mut_dbg_msg_failure_begin_greater_than_end() {
         let mut string = "föo".to_string();
         let string = string.as_mut_str();
-        assert!(string.get_mut(2..=0).is_none());
+        #[allow(clippy::reversed_empty_ranges)]
+        let none = string.get_mut(2..=0);
+        assert!(none.is_none());
+        #[allow(clippy::reversed_empty_ranges)]
         let _ = unsafe { string.get_unchecked_mut_dbg_msg(2..=0, "invalid range") };
     }
 

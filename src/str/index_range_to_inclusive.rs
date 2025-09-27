@@ -121,10 +121,10 @@ mod tests {
         let string = string.as_mut_str();
 
         let mut do_test = |idx: std::ops::RangeToInclusive<usize>, res: &mut str| {
-            assert_eq!(unsafe { string.get_unchecked_mut_dbg(idx.clone()) }, res);
-            assert_eq!(unsafe { string.get_unchecked_mut(idx.clone()) }, res);
-            assert_eq!(string.get_mut(idx.clone()), Some(&mut *res));
-            assert_eq!(&mut string[idx.clone()], res);
+            assert_eq!(unsafe { string.get_unchecked_mut_dbg(idx) }, res);
+            assert_eq!(unsafe { string.get_unchecked_mut(idx) }, res);
+            assert_eq!(string.get_mut(idx), Some(&mut *res));
+            assert_eq!(&mut string[idx], res);
         };
 
         do_test(..=0, "f".to_string().as_mut_str());

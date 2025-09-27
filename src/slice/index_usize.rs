@@ -32,7 +32,7 @@ fn unreachable_dbg_index(index: usize, len: usize, msg: Option<&'static str>) ->
         unreachable_dbg_fmt(format_args!(
             "index out of bounds: the len is {len} but the index is {index}{}{}",
             if msg.is_some() { ": " } else { "" },
-            if let Some(msg) = msg { msg } else { "" }
+            msg.unwrap_or("")
         ))
     }
 }
@@ -71,8 +71,10 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_dbg_failure_matches_std() {
         let slice = [2, 3, 4];
-        #[allow(unconditional_panic)]
-        let _ = &slice[3];
+        fn access(slice: &[i32]) {
+            let _ = &slice[3];
+        }
+        access(slice.as_slice());
     }
 
     #[cfg(debug_assertions)]
@@ -113,8 +115,10 @@ mod tests {
     #[should_panic = "index out of bounds: the len is 3 but the index is 3"]
     fn get_unchecked_mut_dbg_failure_matches_std() {
         let mut slice = [2, 3, 4];
-        #[allow(unconditional_panic)]
-        let _ = &mut slice[3];
+        fn access(slice: &mut [i32]) {
+            let _ = &mut slice[3];
+        }
+        access(slice.as_mut());
     }
 
     #[cfg(debug_assertions)]
